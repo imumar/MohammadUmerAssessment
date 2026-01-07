@@ -9,25 +9,9 @@ require('dotenv').config();
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3001;
 
-const checkPort = async (port, maxPort = 65535) => {
-
-    if (port > maxPort) {
-        throw new Error("No available ports found");
-    }
-
-    try {
-        await killPort(port, "tcp");
-        await killPort(port, "udp");
-        return port;
-    } catch (err) {
-        return checkPort(port + 1, maxPort);
-    }
-};
-
 (async () => {
-    const safePort = await checkPort(PORT);
     const getPort = (await import('get-port')).default; // dynamic import
-    const final_port = await getPort({ port: safePort });
+    const final_port = await getPort({ port: PORT });
 
     console.log(`Port ${final_port} is free. Ready to start server.`);
 
@@ -39,6 +23,37 @@ const checkPort = async (port, maxPort = 65535) => {
     // Routes
     app.use('/api/items', require('./routes/items'));
     app.use('/api/stats', require('./routes/stats'));
+
+    // New API endpoint for smart contract interaction
+    app.get('/api/MohammadApiTest', async (req, res) => {
+        try {
+            const { ethers } = require('ethers');
+
+            // Connect to Polygon mainnet using a public RPC
+            const provider = new ethers.JsonRpcProvider('https://polygon-rpc.com');
+
+            // Example: Get the latest block number
+            const blockNumber = await provider.getBlockNumber();
+            console.log('Latest block number:', blockNumber);
+
+            //  fetching ETH balance of a random address
+            const address = '0x79D4a5CF743f4e5032503BD21facf8D50F076Ef1'; 
+            const balance = await provider.getBalance(address);
+            const ethBalance = ethers.formatEther(balance);
+            console.log('ETH balance:', ethBalance);
+
+            res.json({
+                message: 'Smart contract data fetched successfully',
+                data: {
+                    latestBlockNumber: blockNumber,
+                    balance: ethBalance
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            res.status(500).json({ error: 'Failed to fetch smart contract data' });
+        }
+    });
 
     require('./config/dbHandler.js').connect();
 
