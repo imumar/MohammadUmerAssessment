@@ -81,3 +81,27 @@ npm install
 
 # Start the server
 npm start
+```
+
+## 📡 Assessment Explanation
+
+### GET /api/MohammadApiTest
+
+A demonstration API endpoint for blockchain interaction that fetches data from the Polygon network.
+
+**Functionality:**
+- Connects to Polygon mainnet using ethers.js and a public RPC endpoint (`https://polygon-rpc.com`)
+- Retrieves the latest block number from the blockchain
+- Queries the ETH balance of a specific wallet address (`0x79D4a5CF743f4e5032503BD21facf8D50F076Ef1`)
+- Returns the fetched data in JSON format
+
+**Response Example:**
+```json
+{"message":"Smart contract data fetched successfully","data":{"latestBlockNumber":81342319,"balance":"0.069827646005471764"}}%    
+```
+
+**Usage:**
+do npm start and then
+```bash
+curl http://localhost:3001/api/MohammadApiTest
+```
